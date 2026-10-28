@@ -1,7 +1,16 @@
 import { useEffect, useState } from 'react';
-import { ArrowRight, ArrowUpRight, Clock3, Plus, ShieldCheck, Star, WalletCards } from 'lucide-react';
+import {
+  ArrowRight,
+  ArrowUpRight,
+  Clock3,
+  FileDown,
+  Plus,
+  ShieldCheck,
+  Star,
+  WalletCards
+} from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { api, getErrorMessage } from '../lib/api.js';
+import { api, downloadBackupPdf, getErrorMessage } from '../lib/api.js';
 import { useAuth } from '../context/AuthContext.jsx';
 import { useToast } from '../context/ToastContext.jsx';
 import Loading from '../components/Loading.jsx';
@@ -19,6 +28,8 @@ export default function DashboardPage() {
   const [error, setError] = useState('');
   const [pendingDelete, setPendingDelete] = useState(null);
   const [deleting, setDeleting] = useState(false);
+  const [showBackupConfirm, setShowBackupConfirm] = useState(false);
+  const [downloadingBackup, setDownloadingBackup] = useState(false);
 
   async function load() {
     setError('');
@@ -60,6 +71,19 @@ export default function DashboardPage() {
     }
   }
 
+  async function handleBackupDownload() {
+    setDownloadingBackup(true);
+    try {
+      const filename = await downloadBackupPdf();
+      setShowBackupConfirm(false);
+      notify(`PDF backup downloaded: ${filename}`);
+    } catch (err) {
+      notify(getErrorMessage(err), 'error');
+    } finally {
+      setDownloadingBackup(false);
+    }
+  }
+
   const favoriteAccounts = accounts.filter((account) => account.isFavorite);
   const favoriteCount = favoriteAccounts.length;
   const categoryCounts = categories.map((category) => ({
@@ -80,9 +104,27 @@ export default function DashboardPage() {
           </h1>
           <p>Everything you need, right where you need it.</p>
         </div>
-        <Link className="button button-primary" to="/accounts/new">
-          <Plus size={18} /> Add account
-        </Link>
+        <div className="heading-actions flex items-center gap-2.5">
+          <button
+            type="button"
+            className="button button-quiet backup-now-btn"
+            disabled={downloadingBackup}
+            onClick={() => setShowBackupConfirm(true)}
+          >
+            {downloadingBackup ? (
+              <>
+                <span className="backup-spinner" /> Generating…
+              </>
+            ) : (
+              <>
+                <FileDown size={17} /> Backup Now
+              </>
+            )}
+          </button>
+          <Link className="button button-primary" to="/accounts/new">
+            <Plus size={18} /> Add account
+          </Link>
+        </div>
       </div>
 
       {error && (
@@ -227,6 +269,21 @@ export default function DashboardPage() {
           onCancel={() => setPendingDelete(null)}
           onConfirm={removeAccount}
           busy={deleting}
+        />
+      )}
+
+      {showBackupConfirm && (
+        <ConfirmDialog
+          title="Download Vault PDF Backup?"
+          message="This backup will include all saved email account details. Continue?"
+          confirmLabel="Download Backup"
+          cancelLabel="Cancel"
+          confirmVariant="primary"
+          icon={FileDown}
+          warningNotice="This document contains sensitive personal email directory data. Store it securely once downloaded."
+          onCancel={() => setShowBackupConfirm(false)}
+          onConfirm={handleBackupDownload}
+          busy={downloadingBackup}
         />
       )}
     </>

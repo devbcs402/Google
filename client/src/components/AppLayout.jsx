@@ -1,12 +1,13 @@
 import { useState } from 'react';
 import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
-import { LayoutDashboard, LogOut, Menu, Settings2, ShieldCheck, X } from 'lucide-react';
+import { FileDown, LayoutDashboard, LogOut, Menu, Settings2, ShieldCheck, X } from 'lucide-react';
 import Brand from './Brand.jsx';
 import { useAuth } from '../context/AuthContext.jsx';
 
 const links = [
   { to: '/dashboard', label: 'Overview', icon: LayoutDashboard, end: true },
   { to: '/accounts', label: 'Email accounts', icon: ShieldCheck },
+  { to: '/backup', label: 'Backup', icon: FileDown },
   { to: '/profile', label: 'Profile & settings', icon: Settings2 }
 ];
 

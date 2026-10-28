@@ -10,6 +10,7 @@ import AccountFormPage from './pages/AccountFormPage.jsx';
 import LandingPage from './pages/LandingPage.jsx';
 import NotFoundPage from './pages/NotFoundPage.jsx';
 import ProfilePage from './pages/ProfilePage.jsx';
+import BackupPage from './pages/BackupPage.jsx';
 
 function ProtectedLayout() {
   const { user, loading } = useAuth();
@@ -29,6 +30,7 @@ export default function App() {
         <Route path="/accounts/new" element={<AccountFormPage />} />
         <Route path="/accounts/:id" element={<AccountDetailPage />} />
         <Route path="/accounts/:id/edit" element={<AccountFormPage />} />
+        <Route path="/backup" element={<BackupPage />} />
         <Route path="/profile" element={<ProfilePage />} />
       </Route>
       <Route path="*" element={<NotFoundPage />} />
