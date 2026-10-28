@@ -1,6 +1,7 @@
 import mongoose from 'mongoose';
 import EmailAccount from '../models/EmailAccount.js';
 import { CATEGORIES, validateAccount } from '../utils/validation.js';
+import { generatePdfBackup } from '../utils/pdfBackup.js';
 
 function validId(id) {
   return mongoose.isObjectIdOrHexString(id);
@@ -130,6 +131,22 @@ export async function deleteAccount(req, res, next) {
     const account = await EmailAccount.findOneAndDelete({ _id: req.params.id, userId: req.user.id });
     if (!account) return res.status(404).json({ message: 'Account not found.' });
     return res.status(204).end();
+  } catch (error) {
+    return next(error);
+  }
+}
+
+export async function downloadBackupPdf(req, res, next) {
+  try {
+    const accounts = await EmailAccount.find({ userId: req.user.id })
+      .sort({ category: 1, emailAddress: 1 })
+      .lean();
+
+    const dateStr = new Date().toISOString().split('T')[0];
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader('Content-Disposition', `attachment; filename="email-vault-backup-${dateStr}.pdf"`);
+
+    generatePdfBackup(res, accounts, req.user);
   } catch (error) {
     return next(error);
   }
