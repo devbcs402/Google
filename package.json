@@ -1,0 +1,13 @@
+{
+  "name": "email-vault-manager",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "npm --prefix client run dev",
+    "build": "npm --prefix client run build",
+    "preview": "npm --prefix client run preview",
+    "server": "npm --prefix server run dev",
+    "test:server": "npm --prefix server test"
+  }
+}
